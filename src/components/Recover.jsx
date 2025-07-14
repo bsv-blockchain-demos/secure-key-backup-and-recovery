@@ -5,6 +5,8 @@ import { Html5Qrcode } from 'html5-qrcode';
 function Recover() {
   const [shares, setShares] = useState([]);
   const [recoveredKey, setRecoveredKey] = useState(null);
+  const [pubKeyQrRef, setPubKeyQrRef] = useState(null);
+  const [addressQrRef, setAddressQrRef] = useState(null);
   const [scanning, setScanning] = useState(false);
   const [pasteInput, setPasteInput] = useState('');
 
@@ -38,7 +40,9 @@ function Recover() {
   const recoverKey = () => {
     if (shares.length >= 2) { // Assuming minimum 2 for recovery
       const key = PrivateKey.fromBackupShares(shares);
-      setRecoveredKey(key);
+      setPubKeyQrRef(key.toPublicKey().toString());
+      setAddressQrRef(key.toAddress());
+      setRecoveredKey(key.toWif());
     } else {
       alert('Need at least the threshold number of shares to recover.');
     }
@@ -61,7 +65,11 @@ function Recover() {
       {recoveredKey && (
         <div>
           <h2>Recovered Private Key</h2>
-          <p>{recoveredKey.toWif()}</p> {/* Display as WIF or appropriate format */}
+          <p>{recoveredKey}</p> {/* Display as WIF or appropriate format */}
+          <h2>PublicKey</h2>
+          <p>{pubKeyQrRef}</p>
+          <h2>Address</h2>
+          <p>{addressQrRef}</p>
         </div>
       )}
     </div>

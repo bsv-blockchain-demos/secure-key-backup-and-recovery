@@ -17,7 +17,6 @@ function Backup() {
   const pubKeyQrRef = useRef(null);
   const addressQrRef = useRef(null);
 
-
   const generateKeyAndShares = () => {
     const key = PrivateKey.fromRandom();
     setPrivateKey(key);
@@ -31,39 +30,39 @@ function Backup() {
     value: 1
   }));
 
-const saveAsPDF = () => {
-  const doc = new jsPDF();
-  shares.forEach((share, index) => {
-    if (index > 0) {
-      doc.addPage();
-    }
-    doc.setFontSize(12);
-    doc.text(`Share ${index + 1} of ${totalShares}`, 10, 10);
-    if (qrRefs.current[index]) {
-      doc.addImage(qrRefs.current[index].toDataURL('image/png'), 'PNG', 10, 15, 50, 50);
-    }
-    doc.setFontSize(8);
-    doc.text(share, 10, 70);
-    doc.setFontSize(12);
+  const saveAsPDF = () => {
+    const doc = new jsPDF();
+    shares.forEach((share, index) => {
+      if (index > 0) {
+        doc.addPage();
+      }
+      doc.setFontSize(12);
+      doc.text(`Share ${index + 1} of ${totalShares}`, 10, 10);
+      if (qrRefs.current[index]) {
+        doc.addImage(qrRefs.current[index].toDataURL('image/png'), 'PNG', 10, 20, 50, 50);
+      }
+      doc.setFontSize(8);
+      doc.text(share, 10, 80);
+      doc.setFontSize(12);
 
-    // Always repeat the public details on each page
-    doc.text('PublicKey', 10, 90);
-    if (pubKeyQrRef.current) {
-      doc.addImage(pubKeyQrRef.current.toDataURL('image/png'), 'PNG', 10, 100, 50, 50);
-    }
-    doc.setFontSize(8);
-    doc.text(privateKey.toPublicKey().toString(), 10, 160);
-    doc.setFontSize(12);
-    doc.text('Address', 10, 200);
-    if (addressQrRef.current) {
-      doc.addImage(addressQrRef.current.toDataURL('image/png'), 'PNG', 10, 210, 50, 50);
-    }
-    doc.setFontSize(8);
-    doc.text(privateKey.toAddress(), 10, 270);
-  });
-  
-  doc.save('backup-shares.pdf');
-};
+      // Always repeat the public details on each page
+      doc.text('PublicKey', 10, 100);
+      if (pubKeyQrRef.current) {
+        doc.addImage(pubKeyQrRef.current.toDataURL('image/png'), 'PNG', 10, 110, 50, 50);
+      }
+      doc.setFontSize(8);
+      doc.text(privateKey.toPublicKey().toString(), 10, 170);
+      doc.setFontSize(12);
+      doc.text('Address', 10, 190);
+      if (addressQrRef.current) {
+        doc.addImage(addressQrRef.current.toDataURL('image/png'), 'PNG', 10, 200, 50, 50);
+      }
+      doc.setFontSize(8);
+      doc.text(privateKey.toAddress(), 10, 260);
+    });
+    
+    doc.save('backup-shares.pdf');
+  };
 
   return (
     <div>
