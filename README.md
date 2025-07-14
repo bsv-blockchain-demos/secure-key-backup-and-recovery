@@ -1,78 +1,12 @@
-# BSV TEMPLATE
+# React + Vite
 
-BSV BLOCKCHAIN | Template repository for open-source projects
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Update this README with information about the project.
+Currently, two official plugins are available:
 
-## Table of Contents
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-1. [Objective](#objective)
-2. [Getting Started](#getting-started)
-3. [Features & Deliverables](#features--deliverables)
-4. [Documentation](#documentation)
-5. [Contribution Guidelines](#contribution-guidelines)
-6. [Support & Contacts](#support--contacts)
+## Expanding the ESLint configuration
 
-## Objective
-
-Toe objective of this project is to make it easier to create new open-source projects within Bitcoin SV.
-
-## Getting Started
-
-### Fork the repo
-
-To create a project from this template:
-
-```bash
-git clone https://github.com/bitcoin-sv/template
-```
-
-### Basic Usage
-
-
-```typescript
-// TODO: Code Example Will Go Here
-```
-
-For a more detailed tutorial and advanced examples, check our [Documentation](#documentation).
-
-## Features & Deliverables
-
-- **Main Project Feature**: Description of the feature
-
-- **Main Project Feature 2**: Description of the feature
-
-- **Secondary Project Feature**: Description of the feature
-
-## Documentation
-
-Provide detailed information and links to the various places the project is documented, including concepts, getting started guides, tutorials, and API specifications.
-
-## Contribution Guidelines
-
-We're always looking for contributors to help us improve the project. Whether it's bug reports, feature requests, or pull requests - all contributions are welcome.
-
-1. **Fork & Clone**: Fork this repository and clone it to your local machine.
-2. **Set Up**: Run `npm install` to install all dependencies.
-3. **Make Changes**: Create a new branch and make your changes.
-4. **Test**: Ensure all tests pass by running `npm test`.
-5. **Commit**: Commit your changes and push to your fork.
-6. **Pull Request**: Open a pull request from your fork to this repository.
-
-For more details, check the [contribution guidelines](./CONTRIBUTING.md).
-
-For information on past releases, check out the [changelog](./CHANGELOG.md). For future plans, check the [roadmap](./ROADMAP.md)!
-
-## Support & Contacts
-
-Project Owners: `<names and email addresses>`
-
-Development Team Lead: `<name and email>`
-
-For questions, bug reports, or feature requests, please open an issue on GitHub or contact us directly.
-
-## License
-
-The license for the code in this repository is the Open BSV License. Refer to [LICENSE.txt](./LICENSE.txt) for the license text.
-
-Thank you for being a part of the BSV Blockchain ecosystem. Let's build the future of BSV Blockchain together!
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
