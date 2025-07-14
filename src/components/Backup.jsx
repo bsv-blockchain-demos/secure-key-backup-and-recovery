@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { PrivateKey } from '@bsv/sdk';
 import { QRCodeCanvas } from 'qrcode.react';
-import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell } from 'recharts';
 import jsPDF from 'jspdf';
 
 const COLORS = ['#0088FE', '#FFBB28'];
@@ -12,7 +12,10 @@ function Backup() {
   const [privateKey, setPrivateKey] = useState(null);
   const [shares, setShares] = useState([]);
   const [generated, setGenerated] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
   const qrRefs = useRef([]);
+  const pubKeyQrRef = useRef(null);
+  const addressQrRef = useRef(null);
 
 
   const generateKeyAndShares = () => {
@@ -34,11 +37,31 @@ const saveAsPDF = () => {
     if (index > 0) {
       doc.addPage();
     }
-    doc.text(`Share ${index + 1}`, 10, 10);
+    doc.setFontSize(12);
+    doc.text(`Share ${index + 1} of ${totalShares}`, 10, 10);
     if (qrRefs.current[index]) {
       doc.addImage(qrRefs.current[index].toDataURL('image/png'), 'PNG', 10, 15, 50, 50);
     }
+    doc.setFontSize(8);
+    doc.text(share, 10, 70);
+    doc.setFontSize(12);
+
+    // Always repeat the public details on each page
+    doc.text('PublicKey', 10, 90);
+    if (pubKeyQrRef.current) {
+      doc.addImage(pubKeyQrRef.current.toDataURL('image/png'), 'PNG', 10, 100, 50, 50);
+    }
+    doc.setFontSize(8);
+    doc.text(privateKey.toPublicKey().toString(), 10, 160);
+    doc.setFontSize(12);
+    doc.text('Address', 10, 200);
+    if (addressQrRef.current) {
+      doc.addImage(addressQrRef.current.toDataURL('image/png'), 'PNG', 10, 210, 50, 50);
+    }
+    doc.setFontSize(8);
+    doc.text(privateKey.toAddress(), 10, 270);
   });
+  
   doc.save('backup-shares.pdf');
 };
 
@@ -95,6 +118,19 @@ const saveAsPDF = () => {
             </div>
           ))}
           <button onClick={saveAsPDF}>Save as PDF</button>
+          {!confirmed && (
+            <button onClick={() => setConfirmed(true)}>I have backed up the key</button>
+          )}
+        </div>
+      )}
+      {generated && (
+        <div style={{display: confirmed ? 'block' : 'none'}}>
+          <h2>PublicKey</h2>
+          <p>{privateKey.toPublicKey().toString()}</p>
+          <QRCodeCanvas value={privateKey.toPublicKey().toString()} ref={pubKeyQrRef} />
+          <h2>Address</h2>
+          <p>{privateKey.toAddress()}</p>
+          <QRCodeCanvas value={privateKey.toAddress()} ref={addressQrRef} />
         </div>
       )}
     </div>
