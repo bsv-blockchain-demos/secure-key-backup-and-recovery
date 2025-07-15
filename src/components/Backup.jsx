@@ -113,7 +113,7 @@ function Backup({ wallet }) {
 
   return (
     <div>
-      <h1>Key Backup</h1>
+      <h2>Key Splitting & Backup</h2>
       {(!generated) && <>
         <label>
           Threshold:
@@ -160,7 +160,7 @@ function Backup({ wallet }) {
         <div>
           {!confirmed && (
             <>
-              <h2>Backup Shares</h2>
+              <h3>Backup Shares</h3>
               <button className={'positive'} onClick={saveAsPDF}>Save as PDF</button>
               <br />
               <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around' }}>
@@ -180,20 +180,22 @@ function Backup({ wallet }) {
           )}
         </div>
         <div style={{ display: confirmed ? 'flex' : 'none', flexDirection: 'column', alignItems: 'center', padding: '20px', paddingBottom: '100px' }}>
-          <h2>PublicKey</h2>
-          <p>{privateKey.toPublicKey().toString()}</p>
-          <QRCodeCanvas value={privateKey.toPublicKey().toString()} ref={pubKeyQrRef} style={{ marginBottom: '20px' }} />
-          <h2>Address</h2>
-          <p><a href={`https://whatsonchain.com/address/${privateKey.toAddress()}`} target="_blank" rel="noopener noreferrer">{privateKey.toAddress()}</a></p>
-          <QRCodeCanvas value={privateKey.toAddress()} ref={addressQrRef} style={{ marginBottom: '20px' }} />
+          <h3>PublicKey</h3>
+          <QRCodeCanvas value={privateKey.toPublicKey().toString()} ref={pubKeyQrRef} style={{ marginBottom: '5px' }} />
+          <input type="text" value={privateKey.toPublicKey().toString()} readOnly />
+          <br />
+          <h3>Address</h3>
+          <QRCodeCanvas value={privateKey.toAddress()} ref={addressQrRef} style={{ marginBottom: '5px' }} />
+          <input type="text" value={privateKey.toAddress()} readOnly />
+          <a href={`https://whatsonchain.com/address/${privateKey.toAddress()}`} target="_blank" rel="noopener noreferrer">Explorer</a>
+          <br />
         </div>
         </>}
 
         {(generated && confirmed) && <>
+          <h2>Transfer Funds</h2>
           <div className='amountInput'>
-            <label htmlFor="bsvAmount">Amount</label>
             <input
-              id="bsvAmount"
               type="number" 
               value={bsvAmount} 
               onChange={(e) => setBsvAmount(e.target.value)} 
@@ -201,7 +203,7 @@ function Backup({ wallet }) {
               min="0.00000001"
               max="21000000"
               step="0.00000001"
-              style={{ marginBottom: '20px', width: '200px' }} 
+              style={{ marginBottom: '20px', width: '140px' }} 
             />
             <span>BSV</span>
           </div>
@@ -212,6 +214,7 @@ function Backup({ wallet }) {
             <p>Success: <a href={`https://whatsonchain.com/tx/${txid}`} target="_blank" rel="noopener noreferrer">{txid}</a></p>
           )}
         </>}
+        <div style={{ height: '100px' }} />
     </div>
   );
 }

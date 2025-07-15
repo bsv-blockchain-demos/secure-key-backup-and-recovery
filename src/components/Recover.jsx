@@ -6,6 +6,8 @@ import React, { useCallback } from 'react';
 
 function Recover({ wallet }) {
   const [shares, setShares] = useState([]);
+  const [threshold, setThreshold] = useState(0);
+  const [integrity, setIntegrity] = useState();
   const [recoveredKey, setRecoveredKey] = useState(null);
   const [pubKeyQrRef, setPubKeyQrRef] = useState(null);
   const [addressQrRef, setAddressQrRef] = useState(null);
@@ -45,9 +47,9 @@ function Recover({ wallet }) {
         qrbox: { width: 250, height: 250 },
       },
       (decodedText) => {
-        setShares((prev) => [...prev, decodedText]);
         html5QrCode.stop();
         setScanning(false);
+        addIfValid(decodedText);
       },
       (errorMessage) => {
         console.warn(errorMessage);
@@ -55,23 +57,42 @@ function Recover({ wallet }) {
     );
   };
 
+  const addIfValid = (input) => {
+    const [x, y, t, i] = input.split('.');
+    if (!!threshold && threshold !== Number(t)) {
+      alert('Threshold does not match!');
+      return;
+    } else {
+      setThreshold(Number(t));
+    }
+    if (!!integrity && integrity !== i) {
+      alert('Integrity does not match!');
+      return;
+    } else {
+      setIntegrity(i);
+    }
+    setShares((prev) => {
+      const newShares = [...prev, input];
+      if (newShares.length === threshold) {
+        recoverKey(newShares);
+      }
+      return newShares;
+    });
+  };
+
   const addPastedShare = () => {
     if (pasteInput) {
-      setShares((prev) => [...prev, pasteInput]);
       setPasteInput('');
+      addIfValid(pasteInput);
     }
   };
 
-  const recoverKey = () => {
-    if (shares.length >= 2) { // Assuming minimum 2 for recovery
+  const recoverKey = (shares) => {
       const key = PrivateKey.fromBackupShares(shares);
       setPubKeyQrRef(key.toPublicKey().toString());
       setAddressQrRef(key.toAddress());
       setRecoveredKey(key.toWif());
       setRecoveredAddress(key.toAddress());
-    } else {
-      alert('Need at least the threshold number of shares to recover.');
-    }
   };
 
   useEffect(() => {
@@ -166,33 +187,41 @@ function Recover({ wallet }) {
 
   return (
     <div>
-      <h1>Recover Key</h1>
-      <button onClick={startScanner} disabled={scanning}>Scan QR Code</button>
-      <div id="reader" style={{ width: '100%' }}></div>
-      <input
-        type="text"
-        value={pasteInput}
-        onChange={(e) => setPasteInput(e.target.value)}
-        placeholder="Paste share here"
-      />
-      <button onClick={addPastedShare}>Add Pasted Share</button>
-      <h2>Collected Shares: {shares.length}</h2>
-      <button onClick={recoverKey}>Recover Key</button>
+      <h2>Recover Key</h2>
+      {!recoveredKey && <>
+        <button onClick={startScanner} disabled={scanning}>Scan QR Code</button>
+        <div id="reader" style={{ width: '100%' }}></div>
+        <br />
+        <br />
+        <input
+          type="text"
+          value={pasteInput}
+          onChange={(e) => setPasteInput(e.target.value)}
+          placeholder="Paste share here"
+        />
+        <br />
+        <br />
+        <button onClick={addPastedShare}>Add Pasted Share</button>
+        <br />
+        <br />
+        <h2>Collected Shares: {shares.length} / {threshold}</h2>
+      </>}
       {recoveredKey && (
         <div>
-          <h2>Recovered Private Key</h2>
-          <p>{recoveredKey}</p>
-          <h2>PublicKey</h2>
-          <p>{pubKeyQrRef}</p>
-          <h2>Address</h2>
+          <h3>Recovered Private Key</h3>
+          <input type="text" value={recoveredKey} readOnly />
+          <h3>PublicKey</h3>
+          <input type="text" value={pubKeyQrRef} readOnly />
+          <h3>Address</h3>
           <p><a href={`https://whatsonchain.com/address/${addressQrRef}`} target="_blank" rel="noopener noreferrer">{addressQrRef}</a></p>
-          <h2>Balance</h2>
+          <h3>Balance</h3>
           <p>{balance} BSV</p>
           <button onClick={handleImportFunds} disabled={isImporting || balance === 0}>
             {isImporting ? 'Importing...' : 'Import Funds'}
           </button>
         </div>
       )}
+      <div style={{ height: '100px' }} />
     </div>
   );
 }

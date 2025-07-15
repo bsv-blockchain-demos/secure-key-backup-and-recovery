@@ -80,6 +80,11 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .explainer > * {
   text-align: left;
   line-height: 1.25;
