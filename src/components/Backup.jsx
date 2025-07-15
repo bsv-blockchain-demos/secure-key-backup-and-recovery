@@ -6,7 +6,7 @@ import jsPDF from 'jspdf';
 import { P2PKH } from '@bsv/sdk';
 import React, { useCallback } from 'react';
 
-const COLORS = ['#0088FE', '#FFBB28'];
+const COLORS = ['#b3525d', '#30a6f5'];
 
 function Backup({ wallet }) {
   const [threshold, setThreshold] = useState(2);
@@ -17,6 +17,7 @@ function Backup({ wallet }) {
   const [confirmed, setConfirmed] = useState(false);
   const [bsvAmount, setBsvAmount] = useState('0');
   const [txid, setTxid] = useState(null);
+  const [filenamePrefix, setFilenamePrefix] = useState(null);
   const qrRefs = useRef([]);
   const pubKeyQrRef = useRef(null);
   const addressQrRef = useRef(null);
@@ -36,12 +37,17 @@ function Backup({ wallet }) {
 
   const saveAsPDF = () => {
     const doc = new jsPDF();
+    const date = new Date().toISOString().split('T')[0];
+    const time = new Date().toISOString().split('T')[1].split('.')[0];
+    const filenamePrefix = `${date}-${time}`;
+    setFilenamePrefix(filenamePrefix);
     shares.forEach((share, index) => {
       if (index > 0) {
         doc.addPage();
       }
       doc.setFontSize(12);
       doc.text(`Share ${index + 1} of ${totalShares}`, 10, 10);
+      doc.text(filenamePrefix, 160, 10);
       if (qrRefs.current[index]) {
         doc.addImage(qrRefs.current[index].toDataURL('image/png'), 'PNG', 10, 20, 50, 50);
       }
@@ -64,8 +70,8 @@ function Backup({ wallet }) {
       doc.setFontSize(8);
       doc.text(privateKey.toAddress(), 10, 260);
     });
-    
-    doc.save('backup-shares.pdf');
+
+    doc.save(`${filenamePrefix}-backup-shares.pdf`);
   };
 
 
@@ -86,12 +92,15 @@ function Backup({ wallet }) {
 
       const lockingScript = new P2PKH().lock(to).toHex();
       const { txid } = await wallet.createAction({
-          description: 'Shout BSV at an address',
+          description: `Lock BSV into address associated with ${filenamePrefix}-backup-shares.pdf`,
           outputs: [
               {
                   lockingScript,
                   satoshis: Math.round(amount * 100000000),
-                  outputDescription: 'BSV for recipient address',
+                  outputDescription: `SSSS secured BSV Savings`,
+                  basket: 'bsv-savings',
+                  labels: ['bsv-savings', 'shamir-secret-sharing', 'backup-shares'],
+                  customInstructions: `Unlock using shares from ${filenamePrefix}-backup-shares.pdf`,
               },
           ],
       });
@@ -100,70 +109,76 @@ function Backup({ wallet }) {
     } catch (error) {
       console.error('Error making payment:', error);
     }
-  }, [privateKey]);
+  }, [privateKey, filenamePrefix]);
 
   return (
     <div>
       <h1>Key Backup</h1>
-      <label>
-        Threshold:
-        <input
-          type="number"
-          value={threshold}
-          onChange={(e) => setThreshold(Math.max(1, parseInt(e.target.value)))}
-          min={2}
-          max={totalShares - 1}
-        />
-      </label>
-      <label>
-        Total Shares:
-        <input
-          type="number"
-          value={totalShares}
-          onChange={(e) => setTotalShares(Math.min(20, Math.max(threshold + 1, parseInt(e.target.value) || (threshold + 1))))}
-          min={threshold + 1}
-          max={20}
-        />
-      </label>
-      <PieChart width={400} height={400}>
-        <Pie
-          data={shareData}
-          cx={200}
-          cy={200}
-          labelLine={false}
-          outerRadius={80}
-          fill="#8884d8"
-          dataKey="value"
-          stroke="#000"
-          strokeWidth={1}
-        >
-          {shareData.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={index < threshold ? COLORS[0] : COLORS[1]} />
-          ))}
-        </Pie>
-      </PieChart>
-      <button onClick={generateKeyAndShares}>Generate Key and Shares</button>
-      {generated && (
+      {(!generated) && <>
+        <label>
+          Threshold:
+          <input
+            type="number"
+            value={threshold}
+            onChange={(e) => setThreshold(Math.max(1, parseInt(e.target.value)))}
+            min={2}
+            max={totalShares - 1}
+          />
+        </label>
+        <label>
+          Total Shares:
+          <input
+            type="number"
+            value={totalShares}
+            onChange={(e) => setTotalShares(Math.min(20, Math.max(threshold + 1, parseInt(e.target.value) || (threshold + 1))))}
+            min={threshold + 1}
+            max={20}
+          />
+        </label>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px', marginTop: '20px' }}>
+          <PieChart width={400} height={400}>
+            <Pie
+              data={shareData}
+              cx={200}
+              cy={200}
+              labelLine={false}
+              outerRadius={80}
+              fill="#8884d8"
+              dataKey="value"
+              stroke="#000"
+              strokeWidth={1}
+            >
+              {shareData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={index < threshold ? COLORS[0] : COLORS[1]} />
+              ))}
+            </Pie>
+          </PieChart>
+        </div>
+        <button onClick={generateKeyAndShares}>Generate Backup Shares</button>
+      </>}
+      {generated && <>
         <div>
-          <h2>Backup Shares</h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around' }}>
-            {shares.map((share, index) => (
-              <div key={index} style={{ margin: '10px', textAlign: 'center' }}>
-                <h3>Share {index + 1}</h3>
-                <QRCodeCanvas
-                  value={share}
-                  ref={(el) => (qrRefs.current[index] = el)}
-                />
-              </div>
-            ))}
-          </div>
-          <button onClick={saveAsPDF}>Save as PDF</button>
           {!confirmed && (
-            <button onClick={() => setConfirmed(true)}>I have backed up the key</button>
+            <>
+              <h2>Backup Shares</h2>
+              <button className={'positive'} onClick={saveAsPDF}>Save as PDF</button>
+              <br />
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around' }}>
+                {shares.map((share, index) => (
+                  <div key={index} style={{ margin: '10px', textAlign: 'center' }}>
+                    <h3>Share {index + 1}</h3>
+                    <QRCodeCanvas
+                      value={share}
+                      ref={(el) => (qrRefs.current[index] = el)}
+                    />
+                  </div>
+                ))}
+              </div>
+              <br />
+              <button className={'critical'} onClick={() => setConfirmed(true)}>I have backed up the key</button>
+            </>
           )}
         </div>
-      )}
-      {generated && (
         <div style={{ display: confirmed ? 'flex' : 'none', flexDirection: 'column', alignItems: 'center', padding: '20px', paddingBottom: '100px' }}>
           <h2>PublicKey</h2>
           <p>{privateKey.toPublicKey().toString()}</p>
@@ -171,19 +186,32 @@ function Backup({ wallet }) {
           <h2>Address</h2>
           <p><a href={`https://whatsonchain.com/address/${privateKey.toAddress()}`} target="_blank" rel="noopener noreferrer">{privateKey.toAddress()}</a></p>
           <QRCodeCanvas value={privateKey.toAddress()} ref={addressQrRef} style={{ marginBottom: '20px' }} />
-          <input 
-            type="number" 
-            value={bsvAmount} 
-            onChange={(e) => setBsvAmount(e.target.value)} 
-            placeholder="BSV Amount" 
-            style={{ marginBottom: '20px', width: '200px' }} 
-          />
-          <button onClick={() => makePayment(Number(bsvAmount))} style={{ width: '200px' }}>Make Payment To This Address</button>
+        </div>
+        </>}
+
+        {(generated && confirmed) && <>
+          <div className='amountInput'>
+            <label htmlFor="bsvAmount">Amount</label>
+            <input
+              id="bsvAmount"
+              type="number" 
+              value={bsvAmount} 
+              onChange={(e) => setBsvAmount(e.target.value)} 
+              placeholder="0.100000000"
+              min="0.00000001"
+              max="21000000"
+              step="0.00000001"
+              style={{ marginBottom: '20px', width: '200px' }} 
+            />
+            <span>BSV</span>
+          </div>
+          <br />
+          <br />
+          <button onClick={() => makePayment(Number(bsvAmount))} style={{ width: '200px' }}>Pay Address</button>
           {txid && (
             <p>Success: <a href={`https://whatsonchain.com/tx/${txid}`} target="_blank" rel="noopener noreferrer">{txid}</a></p>
           )}
-        </div>
-      )}
+        </>}
     </div>
   );
 }
