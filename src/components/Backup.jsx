@@ -3,12 +3,12 @@ import { PrivateKey } from '@bsv/sdk';
 import { QRCodeCanvas } from 'qrcode.react';
 import { PieChart, Pie, Cell } from 'recharts';
 import jsPDF from 'jspdf';
-import { P2PKH, WalletClient } from '@bsv/sdk';
+import { P2PKH } from '@bsv/sdk';
 import React, { useCallback } from 'react';
 
 const COLORS = ['#0088FE', '#FFBB28'];
 
-function Backup() {
+function Backup({ wallet }) {
   const [threshold, setThreshold] = useState(2);
   const [totalShares, setTotalShares] = useState(3);
   const [privateKey, setPrivateKey] = useState(null);
@@ -76,7 +76,6 @@ function Backup() {
         return;
       }
       const to = privateKey.toAddress();
-      const wallet = new WalletClient();
       await wallet.isAuthenticated();
       const { network } = await wallet.getNetwork();
       // Very naive network vs. address check for demo:
@@ -112,7 +111,7 @@ function Backup() {
           type="number"
           value={threshold}
           onChange={(e) => setThreshold(Math.max(1, parseInt(e.target.value)))}
-          min="1"
+          min={2}
           max={totalShares - 1}
         />
       </label>
@@ -121,8 +120,9 @@ function Backup() {
         <input
           type="number"
           value={totalShares}
-          onChange={(e) => setTotalShares(Math.max(threshold + 1, parseInt(e.target.value)))}
+          onChange={(e) => setTotalShares(Math.min(20, Math.max(threshold + 1, parseInt(e.target.value) || (threshold + 1))))}
           min={threshold + 1}
+          max={20}
         />
       </label>
       <PieChart width={400} height={400}>
