@@ -1,0 +1,102 @@
+/* Mobile-specific styles for better display on iPhone */
+
+/* Viewport adjustments for small screens */
+@media (max-width: 767px) {
+  #root {
+    max-width: 100%;
+    padding: 1rem;
+    margin-top: 50px;
+  }
+
+  body {
+    padding-top: 0;
+  }
+
+  h1 {
+    font-size: 1.8em;
+  }
+
+  h2 {
+    font-size: 1.4em;
+  }
+
+  /* Make navigation more mobile-friendly */
+  nav {
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 0;
+    overflow-x: auto;
+  }
+
+  nav a {
+    padding: 8px;
+    margin: 3px;
+    font-size: 0.9em;
+    white-space: nowrap;
+  }
+
+  /* Adjust input fields for mobile */
+  input {
+    padding: 8px;
+    font-size: 16px; /* Prevent zoom on iOS */
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Adjust buttons for better touch */
+  button {
+    padding: 10px 15px;
+    margin: 5px 0;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  /* QR code displays */
+  canvas {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Flexbox improvements for share displays */
+  div[style*="display: flex"] {
+    flex-direction: column;
+  }
+
+  /* Fix the share display in Backup component */
+  div[style*="flexWrap: 'wrap'"] {
+    flex-direction: column;
+  }
+  
+  /* Make the pie chart responsive */
+  .recharts-wrapper {
+    width: 100% !important;
+    height: auto !important;
+  }
+  
+  /* Adjust spacing for mobile view */
+  .explainer {
+    padding: 15px;
+    margin: 20px 0;
+  }
+  
+  /* Fix input fields and their containers */
+  .amountInput {
+    width: 100%;
+    max-width: 200px;
+    margin: 0 auto;
+  }
+  
+  .amountInput input {
+    width: calc(100% - 3em);
+  }
+
+  .amountInput span {
+    position: absolute;
+    right: -1.3rem;
+    top: 1rem;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #666;
+    font-size: 1rem;
+  }
+}

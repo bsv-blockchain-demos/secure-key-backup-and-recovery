@@ -189,34 +189,62 @@ function Recover({ wallet }) {
     <div>
       <h2>Recover Key</h2>
       {!recoveredKey && <>
-        <button onClick={startScanner} disabled={scanning}>Scan QR Code</button>
-        <div id="reader" style={{ width: '100%' }}></div>
-        <br />
-        <br />
-        <input
-          type="text"
-          value={pasteInput}
-          onChange={(e) => setPasteInput(e.target.value)}
-          placeholder="Paste share here"
-        />
-        <br />
-        <br />
-        <button onClick={addPastedShare}>Add Pasted Share</button>
-        <br />
-        <br />
-        <h2>Collected Shares: {shares.length} / {threshold}</h2>
+        <div style={{ maxWidth: '100%', margin: '0 auto' }}>
+          <button 
+            onClick={startScanner} 
+            disabled={scanning}
+            style={{ width: '100%', maxWidth: '250px', margin: '10px auto' }}
+          >
+            Scan QR Code
+          </button>
+          <div id="reader" style={{ width: '100%', maxWidth: '300px', margin: '0 auto' }}></div>
+        </div>
+        <div style={{ margin: '15px auto', maxWidth: '300px' }}>
+          <input
+            type="text"
+            value={pasteInput}
+            onChange={(e) => setPasteInput(e.target.value)}
+            placeholder="Paste share here"
+            style={{ width: '100%', fontSize: '16px', padding: '10px', boxSizing: 'border-box' }}
+          />
+          <button 
+            onClick={addPastedShare}
+            style={{ width: '100%', margin: '15px auto' }}
+          >
+            Add Pasted Share
+          </button>
+        </div>
+        <h2 style={{ margin: '20px 0' }}>Collected Shares: {shares.length} / {threshold}</h2>
       </>}
       {recoveredKey && (
-        <div>
+        <div style={{ maxWidth: '100%', width: '300px', margin: '0 auto' }}>
           <h3>Recovered Private Key</h3>
-          <input type="text" value={recoveredKey} readOnly />
+          <input 
+            type="text" 
+            value={recoveredKey} 
+            readOnly 
+            style={{ width: '100%', fontSize: '0.8em', overflowX: 'auto' }}
+          />
           <h3>PublicKey</h3>
-          <input type="text" value={pubKeyQrRef} readOnly />
+          <input 
+            type="text" 
+            value={pubKeyQrRef} 
+            readOnly 
+            style={{ width: '100%', fontSize: '0.8em', overflowX: 'auto' }}
+          />
           <h3>Address</h3>
-          <p><a href={`https://whatsonchain.com/address/${addressQrRef}`} target="_blank" rel="noopener noreferrer">{addressQrRef}</a></p>
+          <p style={{ wordBreak: 'break-all' }}>
+            <a href={`https://whatsonchain.com/address/${addressQrRef}`} target="_blank" rel="noopener noreferrer">
+              {addressQrRef}
+            </a>
+          </p>
           <h3>Balance</h3>
           <p>{balance} BSV</p>
-          <button onClick={handleImportFunds} disabled={isImporting || balance === 0}>
+          <button 
+            onClick={handleImportFunds} 
+            disabled={isImporting || balance === 0}
+            style={{ width: '100%', margin: '10px auto' }}
+          >
             {isImporting ? 'Importing...' : 'Import Funds'}
           </button>
         </div>

@@ -115,32 +115,38 @@ function Backup({ wallet }) {
     <div>
       <h2>Key Splitting & Backup</h2>
       {(!generated) && <>
-        <label>
-          Threshold:
-          <input
-            type="number"
-            value={threshold}
-            onChange={(e) => setThreshold(Math.max(1, parseInt(e.target.value)))}
-            min={2}
-            max={totalShares - 1}
-          />
-        </label>
-        <label>
-          Total Shares:
-          <input
-            type="number"
-            value={totalShares}
-            onChange={(e) => setTotalShares(Math.min(20, Math.max(threshold + 1, parseInt(e.target.value) || (threshold + 1))))}
-            min={threshold + 1}
-            max={20}
-          />
-        </label>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '300px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <label htmlFor="threshold">Threshold:</label>
+            <input
+              id="threshold"
+              type="number"
+              value={threshold}
+              onChange={(e) => setThreshold(Math.max(1, parseInt(e.target.value)))}
+              min={2}
+              max={totalShares - 1}
+              style={{ width: '100px' }}
+            />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <label htmlFor="totalShares">Total Shares:</label>
+            <input
+              id="totalShares"
+              type="number"
+              value={totalShares}
+              onChange={(e) => setTotalShares(Math.min(20, Math.max(threshold + 1, parseInt(e.target.value) || (threshold + 1))))}
+              min={threshold + 1}
+              max={20}
+              style={{ width: '100px' }}
+            />
+          </div>
+        </div>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px', marginTop: '20px' }}>
-          <PieChart width={400} height={400}>
+          <PieChart width={300} height={300} style={{ maxWidth: '100%' }}>
             <Pie
               data={shareData}
-              cx={200}
-              cy={200}
+              cx={150}
+              cy={150}
               labelLine={false}
               outerRadius={80}
               fill="#8884d8"
@@ -163,13 +169,14 @@ function Backup({ wallet }) {
               <h3>Backup Shares</h3>
               <button className={'positive'} onClick={saveAsPDF}>Save as PDF</button>
               <br />
-              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around' }}>
+              <div className="shares-container" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '15px' }}>
                 {shares.map((share, index) => (
-                  <div key={index} style={{ margin: '10px', textAlign: 'center' }}>
+                  <div key={index} style={{ margin: '10px', textAlign: 'center', maxWidth: '100%' }}>
                     <h3>Share {index + 1}</h3>
                     <QRCodeCanvas
                       value={share}
                       ref={(el) => (qrRefs.current[index] = el)}
+                      size={Math.min(200, window.innerWidth > 400 ? 200 : window.innerWidth - 100)}
                     />
                   </div>
                 ))}
@@ -179,14 +186,14 @@ function Backup({ wallet }) {
             </>
           )}
         </div>
-        <div style={{ display: confirmed ? 'flex' : 'none', flexDirection: 'column', alignItems: 'center', padding: '20px', paddingBottom: '100px' }}>
+        <div style={{ display: confirmed ? 'flex' : 'none', flexDirection: 'column', alignItems: 'center', padding: '15px', paddingBottom: '60px', maxWidth: '100%' }}>
           <h3>PublicKey</h3>
           <QRCodeCanvas value={privateKey.toPublicKey().toString()} ref={pubKeyQrRef} style={{ marginBottom: '5px' }} />
-          <input type="text" value={privateKey.toPublicKey().toString()} readOnly />
+          <input type="text" value={privateKey.toPublicKey().toString()} readOnly style={{ width: '100%', maxWidth: '300px', overflowX: 'auto', fontSize: '0.8em' }} />
           <br />
           <h3>Address</h3>
           <QRCodeCanvas value={privateKey.toAddress()} ref={addressQrRef} style={{ marginBottom: '5px' }} />
-          <input type="text" value={privateKey.toAddress()} readOnly />
+          <input type="text" value={privateKey.toAddress()} readOnly style={{ width: '100%', maxWidth: '300px', fontSize: '0.9em' }} />
           <a href={`https://whatsonchain.com/address/${privateKey.toAddress()}`} target="_blank" rel="noopener noreferrer">Explorer</a>
           <br />
         </div>
@@ -194,7 +201,7 @@ function Backup({ wallet }) {
 
         {(generated && confirmed) && <>
           <h2>Transfer Funds</h2>
-          <div className='amountInput'>
+          <div className='amountInput' style={{ margin: '10px auto' }}>
             <input
               type="number" 
               value={bsvAmount} 
@@ -203,7 +210,7 @@ function Backup({ wallet }) {
               min="0.00000001"
               max="21000000"
               step="0.00000001"
-              style={{ marginBottom: '20px', width: '140px' }} 
+              style={{ marginBottom: '20px', width: '140px', fontSize: '16px' }} 
             />
             <span>BSV</span>
           </div>
