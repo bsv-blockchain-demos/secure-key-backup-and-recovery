@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { PrivateKey } from '@bsv/sdk';
 import { Html5Qrcode } from 'html5-qrcode';
 
-function Recover() {
+function Recover({ wallet }) {
   const [shares, setShares] = useState([]);
   const [recoveredKey, setRecoveredKey] = useState(null);
   const [pubKeyQrRef, setPubKeyQrRef] = useState(null);
@@ -65,13 +65,13 @@ function Recover() {
       {recoveredKey && (
         <div>
           <h2>Recovered Private Key</h2>
-          <p>{recoveredKey}</p> {/* Display as WIF or appropriate format */}
+          <p>{recoveredKey}</p>
           <h2>PublicKey</h2>
           <p>{pubKeyQrRef}</p>
           <h2>Address</h2>
-          <p>{addressQrRef}</p>
-        </div>
-      )}
+          <p><a href={`https://whatsonchain.com/address/${addressQrRef}`} target="_blank" rel="noopener noreferrer">{addressQrRef}</a></p>
+      </div>
+    )}
     </div>
   );
 }

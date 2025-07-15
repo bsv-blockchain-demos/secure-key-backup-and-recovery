@@ -3,6 +3,8 @@ import { PrivateKey } from '@bsv/sdk';
 import { QRCodeCanvas } from 'qrcode.react';
 import { PieChart, Pie, Cell } from 'recharts';
 import jsPDF from 'jspdf';
+import { P2PKH, WalletClient } from '@bsv/sdk';
+import React, { useCallback } from 'react';
 
 const COLORS = ['#0088FE', '#FFBB28'];
 
@@ -13,6 +15,8 @@ function Backup() {
   const [shares, setShares] = useState([]);
   const [generated, setGenerated] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const [bsvAmount, setBsvAmount] = useState('0');
+  const [txid, setTxid] = useState(null);
   const qrRefs = useRef([]);
   const pubKeyQrRef = useRef(null);
   const addressQrRef = useRef(null);
@@ -64,6 +68,41 @@ function Backup() {
     doc.save('backup-shares.pdf');
   };
 
+
+  const makePayment = useCallback(async (amount) => {
+    try {
+      if (!privateKey) {
+        alert('No private key generated yet.');
+        return;
+      }
+      const to = privateKey.toAddress();
+      const wallet = new WalletClient();
+      await wallet.isAuthenticated();
+      const { network } = await wallet.getNetwork();
+      // Very naive network vs. address check for demo:
+      if (network === 'mainnet' && !to.startsWith('1')) {
+          alert('You are on mainnet but the recipient address does not look like a mainnet address (starting with 1)!');
+          return;
+      }
+
+      const lockingScript = new P2PKH().lock(to).toHex();
+      const { txid } = await wallet.createAction({
+          description: 'Shout BSV at an address',
+          outputs: [
+              {
+                  lockingScript,
+                  satoshis: Math.round(amount * 100000000),
+                  outputDescription: 'BSV for recipient address',
+              },
+          ],
+      });
+      
+      setTxid(txid);
+    } catch (error) {
+      console.error('Error making payment:', error);
+    }
+  }, [privateKey]);
+
   return (
     <div>
       <h1>Key Backup</h1>
@@ -107,15 +146,17 @@ function Backup() {
       {generated && (
         <div>
           <h2>Backup Shares</h2>
-          {shares.map((share, index) => (
-            <div key={index}>
-              <h3>Share {index + 1}</h3>
-              <QRCodeCanvas
-                value={share}
-                ref={(el) => (qrRefs.current[index] = el)}
-              />
-            </div>
-          ))}
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around' }}>
+            {shares.map((share, index) => (
+              <div key={index} style={{ margin: '10px', textAlign: 'center' }}>
+                <h3>Share {index + 1}</h3>
+                <QRCodeCanvas
+                  value={share}
+                  ref={(el) => (qrRefs.current[index] = el)}
+                />
+              </div>
+            ))}
+          </div>
           <button onClick={saveAsPDF}>Save as PDF</button>
           {!confirmed && (
             <button onClick={() => setConfirmed(true)}>I have backed up the key</button>
@@ -123,13 +164,24 @@ function Backup() {
         </div>
       )}
       {generated && (
-        <div style={{display: confirmed ? 'block' : 'none'}}>
+        <div style={{ display: confirmed ? 'flex' : 'none', flexDirection: 'column', alignItems: 'center', padding: '20px', paddingBottom: '100px' }}>
           <h2>PublicKey</h2>
           <p>{privateKey.toPublicKey().toString()}</p>
-          <QRCodeCanvas value={privateKey.toPublicKey().toString()} ref={pubKeyQrRef} />
+          <QRCodeCanvas value={privateKey.toPublicKey().toString()} ref={pubKeyQrRef} style={{ marginBottom: '20px' }} />
           <h2>Address</h2>
-          <p>{privateKey.toAddress()}</p>
-          <QRCodeCanvas value={privateKey.toAddress()} ref={addressQrRef} />
+          <p><a href={`https://whatsonchain.com/address/${privateKey.toAddress()}`} target="_blank" rel="noopener noreferrer">{privateKey.toAddress()}</a></p>
+          <QRCodeCanvas value={privateKey.toAddress()} ref={addressQrRef} style={{ marginBottom: '20px' }} />
+          <input 
+            type="number" 
+            value={bsvAmount} 
+            onChange={(e) => setBsvAmount(e.target.value)} 
+            placeholder="BSV Amount" 
+            style={{ marginBottom: '20px', width: '200px' }} 
+          />
+          <button onClick={() => makePayment(Number(bsvAmount))} style={{ width: '200px' }}>Make Payment To This Address</button>
+          {txid && (
+            <p>Success: <a href={`https://whatsonchain.com/tx/${txid}`} target="_blank" rel="noopener noreferrer">{txid}</a></p>
+          )}
         </div>
       )}
     </div>
