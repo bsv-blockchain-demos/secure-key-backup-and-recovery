@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import PageCard from './PageCard'; // Import the new component
 import { PrivateKey, Transaction, Beef, P2PKH } from '@bsv/sdk';
 import { Html5Qrcode } from 'html5-qrcode';
@@ -16,6 +16,7 @@ function Recover({ wallet }) {
   const [balance, setBalance] = useState(0);
   const [isImporting, setIsImporting] = useState(false);
   const [recoveredAddress, setRecoveredAddress] = useState(null);
+  const scannerRef = useRef(null);
 
   const getUtxosForAddress = async (address) => {
     const { network } = await wallet.getNetwork();
@@ -37,25 +38,72 @@ function Recover({ wallet }) {
     return await response.text();
   };
 
-  const startScanner = () => {
-    const html5QrCode = new Html5Qrcode('reader');
-    setScanning(true);
-    html5QrCode.start(
-      { facingMode: 'environment' },
-      {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-      },
-      (decodedText) => {
-        html5QrCode.stop();
-        setScanning(false);
-        addIfValid(decodedText);
-      },
-      (errorMessage) => {
-        console.warn(errorMessage);
+  const startScanner = async () => {
+    try {
+      // Reuse existing instance if present; otherwise create a new one
+      if (!scannerRef.current) {
+        scannerRef.current = new Html5Qrcode('reader');
       }
-    );
+      setScanning(true);
+      await scannerRef.current.start(
+        { facingMode: 'environment' },
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+        },
+        async (decodedText) => {
+          try {
+            // Stop and clear cleanly after a successful scan
+            if (scannerRef.current) {
+              await scannerRef.current.stop().catch(() => {});
+              await scannerRef.current.clear().catch(() => {});
+            }
+          } finally {
+            setScanning(false);
+            addIfValid(decodedText);
+          }
+        },
+        (errorMessage) => {
+          // Normal per-frame scan failure; keep silent or log at low level
+          // console.debug('QR scan frame error:', errorMessage);
+        }
+      );
+    } catch (err) {
+      console.error('Failed to start QR scanner:', err);
+      // Ensure UI state is reset on failure (e.g., denied camera permission or user cancels prompt)
+      setScanning(false);
+      try {
+        if (scannerRef.current) {
+          await scannerRef.current.stop().catch(() => {});
+          await scannerRef.current.clear().catch(() => {});
+        }
+      } catch (_) {
+        // no-op
+      }
+      alert('Unable to start the camera scanner. Please check permissions and try again.');
+    }
   };
+
+  const cancelScanner = useCallback(async () => {
+    try {
+      if (scannerRef.current) {
+        await scannerRef.current.stop().catch(() => {});
+        await scannerRef.current.clear().catch(() => {});
+      }
+    } finally {
+      setScanning(false);
+    }
+  }, []);
+
+  // Cleanup on unmount to avoid dangling camera stream causing crashes/blank screens
+  useEffect(() => {
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.stop().catch(() => {});
+        scannerRef.current.clear().catch(() => {});
+      }
+    };
+  }, []);
 
   const addIfValid = (input) => {
     const [x, y, t, i] = input.split('.');
@@ -192,9 +240,15 @@ function Recover({ wallet }) {
           <p className="page-description">Scan QR codes from your paper backups or paste the share text manually to reconstruct your private key.</p>
           
           <div className="fieldset text-center">
-            <button onClick={startScanner} disabled={scanning} className="button button-primary">
-              {scanning ? '📷 Scanning...' : '📷 Start QR Scanner'}
-            </button>
+            {!scanning ? (
+              <button onClick={startScanner} className="button button-primary">
+                📷 Start QR Scanner
+              </button>
+            ) : (
+              <button onClick={cancelScanner} className="button button-secondary">
+                ✖️ Cancel Scan
+              </button>
+            )}
             <div id="reader" className={`qr-reader ${scanning ? 'active' : ''}`}></div>
           </div>
           
