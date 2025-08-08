@@ -1,12 +1,11 @@
-import { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
+import PageCard from './PageCard';
+import { PieChart, Pie, Cell } from 'recharts';
 import { PrivateKey } from '@bsv/sdk';
 import { QRCodeCanvas } from 'qrcode.react';
-import { PieChart, Pie, Cell } from 'recharts';
+
 import jsPDF from 'jspdf';
 import { P2PKH } from '@bsv/sdk';
-import React, { useCallback } from 'react';
-
-const COLORS = ['#b3525d', '#30a6f5'];
 
 function Backup({ wallet }) {
   const [threshold, setThreshold] = useState(2);
@@ -111,118 +110,127 @@ function Backup({ wallet }) {
     }
   }, [privateKey, filenamePrefix]);
 
-  return (
-    <div>
-      <h2>Key Splitting & Backup</h2>
-      {(!generated) && <>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '300px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <label htmlFor="threshold">Threshold:</label>
-            <input
-              id="threshold"
-              type="number"
-              value={threshold}
-              onChange={(e) => setThreshold(Math.max(1, parseInt(e.target.value)))}
-              min={2}
-              max={totalShares - 1}
-              style={{ width: '100px' }}
-            />
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <label htmlFor="totalShares">Total Shares:</label>
-            <input
-              id="totalShares"
-              type="number"
-              value={totalShares}
-              onChange={(e) => setTotalShares(Math.min(20, Math.max(threshold + 1, parseInt(e.target.value) || (threshold + 1))))}
-              min={threshold + 1}
-              max={20}
-              style={{ width: '100px' }}
-            />
-          </div>
+  const renderInitialState = () => (
+    <div className="form-container text-center">
+      <p className="page-description">Configure how many backup shares to create and how many are needed for recovery.</p>
+      <div className="share-config-container">
+        <div className="fieldset">
+          <label htmlFor="threshold">Required Shares (Threshold)</label>
+          <input
+            id="threshold"
+            type="number"
+            value={threshold}
+            onChange={(e) => setThreshold(Math.max(2, Number(e.target.value)))}
+            min={2}
+            max={totalShares - 1}
+            className="input-text"
+          />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px', marginTop: '20px' }}>
-          <PieChart width={300} height={300} style={{ maxWidth: '100%' }}>
-            <Pie
-              data={shareData}
-              cx={150}
-              cy={150}
-              labelLine={false}
-              outerRadius={80}
-              fill="#8884d8"
-              dataKey="value"
-              stroke="#000"
-              strokeWidth={1}
-            >
-              {shareData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={index < threshold ? COLORS[0] : COLORS[1]} />
-              ))}
-            </Pie>
-          </PieChart>
+        <div className="fieldset">
+          <label htmlFor="totalShares">Total Shares to Create</label>
+          <input
+            id="totalShares"
+            type="number"
+            value={totalShares}
+            onChange={(e) => setTotalShares(Math.max(threshold + 1, Number(e.target.value)))}
+            min={threshold + 1}
+            max={20}
+            className="input-text"
+          />
         </div>
-        <button onClick={generateKeyAndShares}>Generate Backup Shares</button>
-      </>}
-      {generated && <>
-        <div>
-          {!confirmed && (
-            <>
-              <h3>Backup Shares</h3>
-              <button className={'positive'} onClick={saveAsPDF}>Save as PDF</button>
-              <br />
-              <div className="shares-container" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '15px' }}>
-                {shares.map((share, index) => (
-                  <div key={index} style={{ margin: '10px', textAlign: 'center', maxWidth: '100%' }}>
-                    <h3>Share {index + 1}</h3>
-                    <QRCodeCanvas
-                      value={share}
-                      ref={(el) => (qrRefs.current[index] = el)}
-                      size={Math.min(200, window.innerWidth > 400 ? 200 : window.innerWidth - 100)}
-                    />
-                  </div>
-                ))}
-              </div>
-              <br />
-              <button className={'critical'} onClick={() => setConfirmed(true)}>I have backed up the key</button>
-            </>
-          )}
+      </div>
+      <div className="share-chart-container">
+        <h3>Share Distribution</h3>
+        <PieChart width={300} height={300}>
+          <Pie data={shareData} cx={150} cy={150} labelLine={false} outerRadius={100} fill="#8884d8" dataKey="value" stroke="var(--paper-white)" strokeWidth={3}>
+            {shareData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={index < threshold ? 'var(--forest-green)' : 'var(--warm-brown)'} />
+            ))}
+          </Pie>
+        </PieChart>
+        <div className="chart-legend">
+          <span><i style={{ backgroundColor: 'var(--forest-green)' }}></i> Required ({threshold})</span>
+          <span><i style={{ backgroundColor: 'var(--warm-brown)' }}></i> Additional ({totalShares - threshold})</span>
         </div>
-        <div style={{ display: confirmed ? 'flex' : 'none', flexDirection: 'column', alignItems: 'center', padding: '15px', paddingBottom: '60px', maxWidth: '100%' }}>
-          <h3>PublicKey</h3>
-          <QRCodeCanvas value={privateKey.toPublicKey().toString()} ref={pubKeyQrRef} style={{ marginBottom: '5px' }} />
-          <input type="text" value={privateKey.toPublicKey().toString()} readOnly style={{ width: '100%', maxWidth: '300px', overflowX: 'auto', fontSize: '0.8em' }} />
-          <br />
-          <h3>Address</h3>
-          <QRCodeCanvas value={privateKey.toAddress()} ref={addressQrRef} style={{ marginBottom: '5px' }} />
-          <input type="text" value={privateKey.toAddress()} readOnly style={{ width: '100%', maxWidth: '300px', fontSize: '0.9em' }} />
-          <a href={`https://whatsonchain.com/address/${privateKey.toAddress()}`} target="_blank" rel="noopener noreferrer">Explorer</a>
-          <br />
-        </div>
-        </>}
-
-        {(generated && confirmed) && <>
-          <h2>Transfer Funds</h2>
-          <div className='amountInput' style={{ margin: '10px auto' }}>
-            <input
-              type="number" 
-              value={bsvAmount} 
-              onChange={(e) => setBsvAmount(e.target.value)} 
-              placeholder="0.100000000"
-              min="0.00000001"
-              max="21000000"
-              step="0.00000001"
-              style={{ marginBottom: '20px', width: '140px', fontSize: '16px' }} 
-            />
-            <span>BSV</span>
-          </div>
-          <br />
-          <br />
-          <button onClick={() => makePayment(Number(bsvAmount))} style={{ width: '200px' }}>Pay Address</button>
-          {txid && (
-            <p>Success: <a href={`https://whatsonchain.com/tx/${txid}`} target="_blank" rel="noopener noreferrer">{txid}</a></p>
-          )}
-        </>}
-        <div style={{ height: '100px' }} />
+      </div>
+      <button onClick={generateKeyAndShares} className="button button-primary button-large">Generate Backup Shares</button>
     </div>
+  );
+
+  const renderGeneratedState = () => (
+    <div className="form-container text-center">
+      <h3>Backup Shares Generated</h3>
+      <p className="page-description">Your key is now split into {totalShares} shares. You need any {threshold} to recover it. Save the PDF and store each share separately.</p>
+      <button className="button button-secondary" onClick={saveAsPDF}>📄 Save as PDF</button>
+      <div className="qr-code-grid">
+        {shares.map((share, index) => (
+          <div key={index} className="qr-code-item">
+            <h4>Share {index + 1} of {totalShares}</h4>
+            <QRCodeCanvas value={share} ref={(el) => (qrRefs.current[index] = el)} size={180} />
+            <p className={`share-label ${index < threshold ? 'required' : 'additional'}`}>
+              {index < threshold ? 'Required' : 'Additional'}
+            </p>
+          </div>
+        ))}
+      </div>
+      <div className="warning-message">
+        ⚠️ <strong>Critical:</strong> Store each share in a different, secure location. Anyone with {threshold} or more shares can access your funds.
+      </div>
+      <button className="button button-confirm" onClick={() => setConfirmed(true)}>✓ I have securely stored the backup</button>
+    </div>
+  );
+
+  const renderConfirmedState = () => (
+    <div className="form-container text-center">
+      <h3>🎉 Backup Confirmed & Wallet Ready!</h3>
+      <p className="page-description">Your new secure wallet is ready. Use the address below to receive funds.</p>
+      
+      <div className="fieldset">
+        <label>Wallet Address</label>
+        <div className="address-display">
+          <a href={`https://whatsonchain.com/address/${privateKey.toAddress()}`} target="_blank" rel="noopener noreferrer">
+            {privateKey.toAddress()}
+          </a>
+        </div>
+      </div>
+
+      <div className="fieldset">
+        <label>Public Key</label>
+        <input type="text" value={privateKey.toPublicKey().toString()} readOnly className="input-text monospace-font" />
+      </div>
+
+      <div className="divider-or"><span>💰</span></div>
+
+      <h4>Fund Your Wallet</h4>
+      <p className="page-description">Send BSV to your new address to complete the process.</p>
+
+      <div className="fieldset amount-fieldset">
+        <label htmlFor="bsvAmount">Amount to Send</label>
+        <div className="amount-input-wrapper">
+          <input id="bsvAmount" type="number" value={bsvAmount} onChange={(e) => setBsvAmount(e.target.value)} placeholder="0.01" min="0.00000001" step="0.00000001" className="input-text" />
+          <span>BSV</span>
+        </div>
+      </div>
+
+      <button onClick={() => makePayment(Number(bsvAmount))} disabled={!bsvAmount || Number(bsvAmount) <= 0} className="button button-primary button-large">
+        🚀 Send from Wallet
+      </button>
+
+      {txid && (
+        <div className="success-message" style={{ marginTop: '1.5rem' }}>
+          <strong>✅ Transaction Sent!</strong>
+          <a href={`https://whatsonchain.com/tx/${txid}`} target="_blank" rel="noopener noreferrer">View on Explorer</a>
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <PageCard title="Create a New Backup">
+      {!generated && renderInitialState()}
+      {generated && !confirmed && renderGeneratedState()}
+      {generated && confirmed && renderConfirmedState()}
+    </PageCard>
   );
 }
 

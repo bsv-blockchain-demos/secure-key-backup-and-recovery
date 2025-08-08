@@ -1,102 +1,199 @@
-/* Mobile-specific styles for better display on iPhone */
+/* Mobile-specific styles for paper wallet aesthetic */
 
 /* Viewport adjustments for small screens */
 @media (max-width: 767px) {
   #root {
     max-width: 100%;
     padding: 1rem;
-    margin-top: 50px;
+    margin-top: 60px;
   }
 
   body {
     padding-top: 0;
+    background: 
+      radial-gradient(circle at 30% 70%, rgba(212, 175, 55, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 70% 30%, rgba(53, 94, 59, 0.08) 0%, transparent 40%),
+      linear-gradient(135deg, var(--cream-white) 0%, #f5f2ed 100%);
   }
 
   h1 {
-    font-size: 1.8em;
+    font-size: 2em;
+    text-shadow: 2px 2px 4px var(--shadow-light);
   }
 
   h2 {
-    font-size: 1.4em;
+    font-size: 1.5em;
+    text-shadow: 1px 1px 2px var(--shadow-light);
   }
 
-  /* Make navigation more mobile-friendly */
+  /* Enhanced mobile navigation */
   nav {
     flex-direction: row;
     justify-content: space-around;
-    padding: 0;
+    padding: 8px 4px;
     overflow-x: auto;
+    background: 
+      linear-gradient(145deg, var(--warm-brown), var(--dark-brown)),
+      linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, transparent 100%);
+    box-shadow: 
+      0 4px 20px var(--shadow-medium),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
 
   nav a {
-    padding: 8px;
-    margin: 3px;
-    font-size: 0.9em;
+    padding: 10px 16px;
+    margin: 2px;
+    font-size: 0.95em;
     white-space: nowrap;
+    border-radius: 8px;
+    min-width: 80px;
+    text-align: center;
   }
 
-  /* Adjust input fields for mobile */
+  /* Enhanced mobile input fields */
   input {
-    padding: 8px;
+    padding: 14px 18px;
     font-size: 16px; /* Prevent zoom on iOS */
     max-width: 100%;
     box-sizing: border-box;
+    border: 2px solid var(--silver);
+    border-radius: 10px;
+    background: var(--paper-white);
+    box-shadow: 
+      inset 2px 2px 6px var(--shadow-light),
+      0 2px 10px var(--shadow-medium);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Adjust buttons for better touch */
+  input:focus {
+    border-color: var(--forest-green);
+    box-shadow: 
+      inset 2px 2px 6px var(--shadow-light),
+      0 4px 16px var(--shadow-medium),
+      0 0 0 3px rgba(53, 94, 59, 0.15);
+    transform: translateY(-1px);
+  }
+
+  /* Enhanced mobile buttons */
   button {
-    padding: 10px 15px;
-    margin: 5px 0;
+    padding: 16px 24px;
+    margin: 8px 0;
     width: 100%;
-    max-width: 300px;
+    max-width: 320px;
+    font-size: 1.1em;
+    border-radius: 12px;
+    box-shadow: 
+      0 6px 12px var(--shadow-medium),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    touch-action: manipulation;
   }
 
-  /* QR code displays */
+  button:hover {
+    transform: translateY(-1px);
+    box-shadow: 
+      0 8px 16px var(--shadow-dark),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+
+  button:active {
+    transform: translateY(1px);
+    box-shadow: 
+      0 2px 6px var(--shadow-medium),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  /* Enhanced QR code displays */
   canvas {
     max-width: 100%;
     height: auto;
+    border-radius: 8px;
+    box-shadow: 
+      0 4px 12px var(--shadow-light),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    border: 2px solid var(--silver);
+    background: var(--paper-white);
+    padding: 8px;
   }
 
-  /* Flexbox improvements for share displays */
+  /* Enhanced flexbox for mobile share displays */
   div[style*="display: flex"] {
     flex-direction: column;
+    gap: 16px;
   }
 
-  /* Fix the share display in Backup component */
+  /* Enhanced share display styling */
   div[style*="flexWrap: 'wrap'"] {
     flex-direction: column;
+    background: var(--paper-white);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 
+      0 6px 20px var(--shadow-medium),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(139, 111, 71, 0.1);
+    margin: 16px 0;
   }
   
-  /* Make the pie chart responsive */
+  /* Enhanced responsive pie chart */
   .recharts-wrapper {
     width: 100% !important;
     height: auto !important;
-  }
-  
-  /* Adjust spacing for mobile view */
-  .explainer {
-    padding: 15px;
+    background: var(--paper-white);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 
+      0 6px 20px var(--shadow-light),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(139, 111, 71, 0.1);
     margin: 20px 0;
   }
   
-  /* Fix input fields and their containers */
+  /* Enhanced mobile explainer styling */
+  .explainer {
+    padding: 24px;
+    margin: 20px 0;
+    border-radius: 12px;
+    box-shadow: 
+      0 8px 24px var(--shadow-medium),
+      0 2px 8px var(--shadow-light),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+
+  .explainer::before {
+    height: 2px;
+  }
+  
+  /* Enhanced mobile input containers */
   .amountInput {
     width: 100%;
-    max-width: 200px;
+    max-width: 280px;
     margin: 0 auto;
+    position: relative;
+    background: var(--paper-white);
+    border-radius: 10px;
+    box-shadow: 
+      0 4px 12px var(--shadow-light),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(139, 111, 71, 0.1);
+    padding: 4px;
   }
   
   .amountInput input {
     width: calc(100% - 3em);
+    border: none;
+    box-shadow: none;
+    background: transparent;
   }
 
   .amountInput span {
     position: absolute;
-    right: -1.3rem;
-    top: 1rem;
+    right: 12px;
+    top: 50%;
     transform: translateY(-50%);
     pointer-events: none;
-    color: #666;
+    color: var(--warm-brown);
     font-size: 1rem;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px var(--shadow-light);
   }
 }

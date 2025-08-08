@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import PageCard from './PageCard'; // Import the new component
 import { PrivateKey, Transaction, Beef, P2PKH } from '@bsv/sdk';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Utils } from '@bsv/sdk';
-import React, { useCallback } from 'react';
 
 function Recover({ wallet }) {
   const [shares, setShares] = useState([]);
@@ -186,71 +186,91 @@ function Recover({ wallet }) {
   }, [wallet, recoveredKey, recoveredAddress, balance]);
 
   return (
-    <div>
-      <h2>Recover Key</h2>
-      {!recoveredKey && <>
-        <div style={{ maxWidth: '100%', margin: '0 auto' }}>
-          <button 
-            onClick={startScanner} 
-            disabled={scanning}
-            style={{ width: '100%', maxWidth: '250px', margin: '10px auto' }}
-          >
-            Scan QR Code
-          </button>
-          <div id="reader" style={{ width: '100%', maxWidth: '300px', margin: '0 auto' }}></div>
+    <PageCard title="Recover Keys from Backup">
+      {!recoveredKey ? (
+        <div className="form-container">
+          <p className="page-description">Scan QR codes from your paper backups or paste the share text manually to reconstruct your private key.</p>
+          
+          <div className="fieldset text-center">
+            <button onClick={startScanner} disabled={scanning} className="button button-primary">
+              {scanning ? '📷 Scanning...' : '📷 Start QR Scanner'}
+            </button>
+            <div id="reader" className={`qr-reader ${scanning ? 'active' : ''}`}></div>
+          </div>
+          
+          <div className="divider-or"><span>OR</span></div>
+
+          <div className="fieldset">
+            <label htmlFor="pasteShare">Manually Enter Share Text</label>
+            <input
+              id="pasteShare"
+              type="text"
+              value={pasteInput}
+              onChange={(e) => setPasteInput(e.target.value)}
+              placeholder="Paste a single share here..."
+              className="input-text monospace-font"
+            />
+            <button onClick={addPastedShare} disabled={!pasteInput.trim()} className="button button-secondary">
+              ➕ Add Share
+            </button>
+          </div>
+
+          <div className="share-progress-container">
+            <h4>Collection Progress</h4>
+            <div className={`progress-text ${shares.length >= threshold ? 'complete' : ''}`}>
+              {shares.length} / {threshold || '?'}
+            </div>
+            <p className="progress-caption">
+              {threshold ? 
+                (shares.length >= threshold ? 
+                  '✅ Sufficient shares collected!' : 
+                  `Need ${threshold - shares.length} more share${threshold - shares.length !== 1 ? 's' : ''}`
+                ) : 
+                'Add shares to determine the required threshold.'
+              }
+            </p>
+          </div>
         </div>
-        <div style={{ margin: '15px auto', maxWidth: '300px' }}>
-          <input
-            type="text"
-            value={pasteInput}
-            onChange={(e) => setPasteInput(e.target.value)}
-            placeholder="Paste share here"
-            style={{ width: '100%', fontSize: '16px', padding: '10px', boxSizing: 'border-box' }}
-          />
-          <button 
-            onClick={addPastedShare}
-            style={{ width: '100%', margin: '15px auto' }}
-          >
-            Add Pasted Share
-          </button>
-        </div>
-        <h2 style={{ margin: '20px 0' }}>Collected Shares: {shares.length} / {threshold}</h2>
-      </>}
-      {recoveredKey && (
-        <div style={{ maxWidth: '100%', width: '300px', margin: '0 auto' }}>
-          <h3>Recovered Private Key</h3>
-          <input 
-            type="text" 
-            value={recoveredKey} 
-            readOnly 
-            style={{ width: '100%', fontSize: '0.8em', overflowX: 'auto' }}
-          />
-          <h3>PublicKey</h3>
-          <input 
-            type="text" 
-            value={pubKeyQrRef} 
-            readOnly 
-            style={{ width: '100%', fontSize: '0.8em', overflowX: 'auto' }}
-          />
-          <h3>Address</h3>
-          <p style={{ wordBreak: 'break-all' }}>
-            <a href={`https://whatsonchain.com/address/${addressQrRef}`} target="_blank" rel="noopener noreferrer">
-              {addressQrRef}
-            </a>
-          </p>
-          <h3>Balance</h3>
-          <p>{balance} BSV</p>
-          <button 
-            onClick={handleImportFunds} 
-            disabled={isImporting || balance === 0}
-            style={{ width: '100%', margin: '10px auto' }}
-          >
-            {isImporting ? 'Importing...' : 'Import Funds'}
-          </button>
+      ) : (
+        <div className="form-container text-center">
+          <div className="success-message">
+            <strong>🎉 Key Successfully Recovered!</strong>
+            <p>Your private key has been reconstructed. You can now view its details and import any associated funds.</p>
+          </div>
+
+          <div className="fieldset">
+            <label>Recovered Private Key</label>
+            <input type="text" value={recoveredKey} readOnly className="input-text monospace-font sensitive-data" />
+            <p className="input-caption">⚠️ Keep this private key secure and never share it.</p>
+          </div>
+
+          <div className="fieldset">
+            <label>Wallet Address</label>
+            <div className="address-display">
+              <a href={`https://whatsonchain.com/address/${addressQrRef}`} target="_blank" rel="noopener noreferrer">
+                {addressQrRef}
+              </a>
+            </div>
+          </div>
+
+          <div className="balance-display">
+            <h4>Current Balance</h4>
+            <div className={`balance-amount ${balance > 0 ? 'has-funds' : ''}`}>
+              {balance} BSV
+            </div>
+            <p className="balance-caption">
+              {balance > 0 ? 'Funds are available to be imported.' : 'No funds found at this address.'}
+            </p>
+          </div>
+
+          {balance > 0 && (
+            <button onClick={handleImportFunds} disabled={isImporting} className="button button-primary button-large">
+              {isImporting ? '⏳ Importing Funds...' : '💸 Import All Funds'}
+            </button>
+          )}
         </div>
       )}
-      <div style={{ height: '100px' }} />
-    </div>
+    </PageCard>
   );
 }
 
