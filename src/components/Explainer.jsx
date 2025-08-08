@@ -1,11 +1,8 @@
+import PageCard from "./PageCard";
+
 export default function Explainer() {
   return (
-    <div className="explainer-container">
-      <header className="hero-section">
-        <h1>Secure Key Backup and Recovery</h1>
-        <p className="subtitle">Professional-grade cryptographic key management using Shamir's Secret Sharing</p>
-      </header>
-
+    <PageCard title="Secure Key Backup and Recovery">
       <section className="features-grid">
         <div className="feature-card">
           <div className="feature-icon">🔐</div>
@@ -61,6 +58,6 @@ export default function Explainer() {
           <p>This application runs entirely in your browser. Your keys and shares never leave your device unless you explicitly save or print them. Always verify the integrity of your shares before relying on them for key recovery.</p>
         </div>
       </section>
-    </div>
+    </PageCard>
   );
 }

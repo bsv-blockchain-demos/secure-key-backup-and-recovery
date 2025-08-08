@@ -242,7 +242,7 @@ function Recover({ wallet }) {
   }, [wallet, recoveredKey, recoveredAddress, balance]);
 
   return (
-    <PageCard title="Recover Keys from Backup">
+    <PageCard title="Recover a Key">
       {!recoveredKey ? (
         <div className="form-container">
           <p className="page-description">Scan QR codes from your paper backups or paste the share text manually to reconstruct your private key.</p>

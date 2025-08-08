@@ -169,6 +169,13 @@ function Backup({ wallet }) {
           </div>
         ))}
       </div>
+      
+      {/* Hidden QR codes for PDF generation - not visible but needed for refs */}
+      <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+        <QRCodeCanvas value={privateKey.toPublicKey().toString()} ref={pubKeyQrRef} size={180} />
+        <QRCodeCanvas value={privateKey.toAddress()} ref={addressQrRef} size={180} />
+      </div>
+      
       <div className="warning-message">
         ⚠️ <strong>Critical:</strong> Store each share in a different, secure location. Anyone with {threshold} or more shares can access your funds.
       </div>
