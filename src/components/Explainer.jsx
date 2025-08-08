@@ -28,25 +28,17 @@ export default function Explainer() {
 
       <section className="how-it-works">
         <h2>How It Works</h2>
-        <div className="steps">
+        <div className="steps">          
           <div className="step">
             <div className="step-number">1</div>
             <div className="step-content">
-              <h4>Generate</h4>
-              <p>Create a cryptographically secure random key using your browser's crypto API</p>
+              <h4>Split</h4>
+              <p>Generate a cryptographically secure random key using your browser's crypto API and divide that into multiple shares using Shamir's Secret Sharing Scheme</p>
             </div>
           </div>
           
           <div className="step">
             <div className="step-number">2</div>
-            <div className="step-content">
-              <h4>Split</h4>
-              <p>Divide the key into multiple shares using Shamir's Secret Sharing Scheme</p>
-            </div>
-          </div>
-          
-          <div className="step">
-            <div className="step-number">3</div>
             <div className="step-content">
               <h4>Secure</h4>
               <p>Print QR codes and distribute shares to trusted parties or secure locations</p>
@@ -54,7 +46,7 @@ export default function Explainer() {
           </div>
           
           <div className="step">
-            <div className="step-number">4</div>
+            <div className="step-number">3</div>
             <div className="step-content">
               <h4>Recover</h4>
               <p>Combine the minimum threshold of shares to reconstruct your original key</p>

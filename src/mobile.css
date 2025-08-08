@@ -35,9 +35,6 @@
     background: 
       linear-gradient(145deg, var(--warm-brown), var(--dark-brown)),
       linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, transparent 100%);
-    box-shadow: 
-      0 4px 20px var(--shadow-medium),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
 
   nav a {
@@ -46,7 +43,6 @@
     font-size: 0.95em;
     white-space: nowrap;
     border-radius: 8px;
-    min-width: 80px;
     text-align: center;
   }
 
@@ -66,7 +62,7 @@
   }
 
   input:focus {
-    border-color: var(--forest-green);
+    border-color: var(--silver);
     box-shadow: 
       inset 2px 2px 6px var(--shadow-light),
       0 4px 16px var(--shadow-medium),

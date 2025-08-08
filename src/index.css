@@ -5,7 +5,7 @@
   --warm-brown: #8b6f47;
   --dark-brown: #5d4e37;
   --charcoal: #2c2c2c;
-  --forest-green: #355e3b;
+  --silver: #355e3b;
   --silver: #c0c0c0;
   --gold: #d4af37;
   --shadow-light: rgba(139, 111, 71, 0.1);
@@ -50,7 +50,7 @@ input {
 }
 
 input:focus {
-  border-color: var(--forest-green);
+  border-color: var(--silver);
   box-shadow: 
     inset 2px 2px 4px var(--shadow-light),
     0 4px 12px var(--shadow-medium),
@@ -85,7 +85,7 @@ h3 {
 
 a {
   font-weight: 500;
-  color: var(--forest-green);
+  color: var(--silver);
   text-decoration: none;
   transition: all 0.3s ease;
 }
@@ -145,7 +145,7 @@ button:hover {
   box-shadow: 
     0 6px 16px var(--shadow-dark),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  border-color: var(--forest-green);
+  border-color: var(--silver);
 }
 
 button:hover::before {
@@ -207,7 +207,7 @@ button:disabled {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--gold), var(--warm-brown), var(--forest-green));
+  background: linear-gradient(90deg, var(--gold), var(--warm-brown), var(--silver));
 }
 
 .explainer p {
@@ -316,7 +316,7 @@ button:disabled {
   display: flex;
   justify-content: center;
   gap: 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   max-width: 800px;
   margin: 0 auto;
   position: relative;
@@ -331,7 +331,6 @@ button:disabled {
   font-weight: 600;
   font-family: 'Georgia', serif;
   font-size: 1.1rem;
-  min-width: 140px;
   color: var(--dark-brown);
   background: linear-gradient(145deg, var(--cream-white), var(--paper-white));
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -351,7 +350,7 @@ button:disabled {
 
 .nav-action:hover {
   background: linear-gradient(145deg, var(--paper-white), #fdfcf9);
-  color: var(--forest-green);
+  color: var(--silver);
   box-shadow: 
     0 -3px 6px rgba(139, 111, 71, 0.15),
     0 4px 12px rgba(139, 111, 71, 0.1),
@@ -442,12 +441,11 @@ button:disabled {
 /* Mobile responsiveness for navigation */
 @media (max-width: 640px) {
   .nav-menu {
-    flex-direction: column;
+    flex-direction: row;
     gap: 1rem;
   }
   
   .nav-action {
-    width: 100%;
     max-width: 280px;
   }
   
@@ -499,13 +497,17 @@ button:disabled {
 .form-container {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.5rem;
 }
 
 .form-container .fieldset {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+.form-container h3 {
+  margin: 0;
 }
 
 .form-container label {
@@ -555,7 +557,7 @@ button:disabled {
 }
 
 .input-text.sensitive-data {
-  border-color: var(--forest-green);
+  border-color: var(--silver);
   background-color: #f0fff0;
   font-weight: 600;
 }
@@ -630,7 +632,7 @@ button:disabled {
 }
 
 .progress-text.complete {
-  color: var(--forest-green);
+  color: var(--silver);
 }
 
 .progress-caption {
@@ -642,7 +644,7 @@ button:disabled {
 .success-message {
   padding: 1.5rem;
   background-color: #f0fff0;
-  border: 2px solid var(--forest-green);
+  border: 2px solid var(--silver);
   border-radius: 12px;
   text-align: center;
 }
@@ -666,7 +668,7 @@ button:disabled {
 }
 
 .address-display a {
-  color: var(--forest-green);
+  color: var(--silver);
   text-decoration: none;
   font-weight: 600;
   font-family: 'Courier New', Courier, monospace;
@@ -694,7 +696,7 @@ button:disabled {
 }
 
 .balance-amount.has-funds {
-  color: var(--forest-green);
+  color: var(--silver);
 }
 
 .balance-caption {
@@ -706,7 +708,7 @@ button:disabled {
 .share-config-container {
   display: flex;
   justify-content: center;
-  gap: 2rem;
+  gap: 1rem;
   flex-wrap: wrap;
   margin-bottom: 2rem;
 }
@@ -725,7 +727,7 @@ button:disabled {
 
 .chart-legend {
   display: flex;
-  gap: 1.5rem;
+  gap: 0.5rem;
   margin-top: 1rem;
 }
 
@@ -755,7 +757,7 @@ button:disabled {
 }
 
 .share-label.required {
-  color: var(--forest-green);
+  color: var(--silver);
 }
 
 .share-label.additional {
@@ -817,7 +819,6 @@ button:disabled {
   box-shadow: none;
   padding: 2.5rem 2rem;
   margin: 2.5rem auto 0 auto;
-  max-width: 720px;
   width: 100%;
   box-sizing: border-box;
   position: relative;
@@ -901,7 +902,7 @@ button:disabled {
   box-shadow: 
     0 12px 32px var(--shadow-dark),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  border-color: var(--forest-green);
+  border-color: var(--silver);
 }
 
 .feature-card:hover::before {
@@ -953,6 +954,7 @@ button:disabled {
   border: 1px solid rgba(139, 111, 71, 0.2);
   box-shadow: 0 4px 12px var(--shadow-light);
   transition: all 0.3s ease;
+  text-align: left;
 }
 
 .step:hover {
@@ -979,6 +981,7 @@ button:disabled {
 .step-content h4 {
   color: var(--dark-brown);
   margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
   font-size: 1.2rem;
   font-weight: 600;
 }
@@ -995,7 +998,7 @@ button:disabled {
 
 .notice-card {
   background: linear-gradient(145deg, rgba(53, 94, 59, 0.1), rgba(53, 94, 59, 0.05));
-  border: 2px solid var(--forest-green);
+  border: 2px solid var(--silver);
   border-radius: 16px;
   padding: 2rem;
   text-align: center;
@@ -1005,7 +1008,7 @@ button:disabled {
 }
 
 .notice-card h3 {
-  color: var(--forest-green);
+  color: var(--silver);
   margin-bottom: 1rem;
   font-size: 1.4rem;
   display: flex;
@@ -1053,8 +1056,8 @@ button:disabled {
 
 .critical {
   background: linear-gradient(145deg, rgba(53, 94, 59, 0.1), rgba(53, 94, 59, 0.05));
-  border: 2px solid var(--forest-green);
-  color: var(--forest-green);
+  border: 2px solid var(--silver);
+  color: var(--silver);
   padding: 12px 16px;
   border-radius: 8px;
   font-weight: 600;
@@ -1085,7 +1088,7 @@ button:disabled {
 }
 
 .amountInput:focus-within {
-  border-color: var(--forest-green);
+  border-color: var(--silver);
   box-shadow: 
     0 6px 16px var(--shadow-medium),
     inset 0 1px 0 rgba(255, 255, 255, 0.8),
@@ -1188,7 +1191,7 @@ canvas:hover {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--gold), var(--forest-green), var(--warm-brown));
+  background: linear-gradient(90deg, var(--gold), var(--silver), var(--warm-brown));
 }
 
 /* Form containers */
@@ -1236,15 +1239,15 @@ input[type="number"] {
 }
 
 input[type="number"]:focus {
-  border-color: var(--forest-green);
+  border-color: var(--silver);
   background: var(--paper-white);
 }
 
 /* Success states */
 .success-message {
   background: linear-gradient(145deg, rgba(53, 94, 59, 0.1), rgba(53, 94, 59, 0.05));
-  border: 2px solid var(--forest-green);
-  color: var(--forest-green);
+  border: 2px solid var(--silver);
+  color: var(--silver);
   padding: 16px 20px;
   border-radius: 12px;
   margin: 16px 0;

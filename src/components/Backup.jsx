@@ -115,7 +115,7 @@ function Backup({ wallet }) {
       <p className="page-description">Configure how many backup shares to create and how many are needed for recovery.</p>
       <div className="share-config-container">
         <div className="fieldset">
-          <label htmlFor="threshold">Required Shares (Threshold)</label>
+          <label htmlFor="threshold">Threshold</label>
           <input
             id="threshold"
             type="number"
@@ -127,7 +127,7 @@ function Backup({ wallet }) {
           />
         </div>
         <div className="fieldset">
-          <label htmlFor="totalShares">Total Shares to Create</label>
+          <label htmlFor="totalShares">Shares</label>
           <input
             id="totalShares"
             type="number"
@@ -140,18 +140,14 @@ function Backup({ wallet }) {
         </div>
       </div>
       <div className="share-chart-container">
-        <h3>Share Distribution</h3>
+        <h3>Any {threshold} of the {totalShares} Shares Will be able to Recover the Key</h3>
         <PieChart width={300} height={300}>
           <Pie data={shareData} cx={150} cy={150} labelLine={false} outerRadius={100} fill="#8884d8" dataKey="value" stroke="var(--paper-white)" strokeWidth={3}>
             {shareData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={index < threshold ? 'var(--forest-green)' : 'var(--warm-brown)'} />
+              <Cell key={`cell-${index}`} fill={index < threshold ? 'var(--warm-brown)' : 'var(--silver)'} />
             ))}
           </Pie>
         </PieChart>
-        <div className="chart-legend">
-          <span><i style={{ backgroundColor: 'var(--forest-green)' }}></i> Required ({threshold})</span>
-          <span><i style={{ backgroundColor: 'var(--warm-brown)' }}></i> Additional ({totalShares - threshold})</span>
-        </div>
       </div>
       <button onClick={generateKeyAndShares} className="button button-primary button-large">Generate Backup Shares</button>
     </div>

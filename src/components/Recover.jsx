@@ -17,6 +17,21 @@ function Recover({ wallet }) {
   const [isImporting, setIsImporting] = useState(false);
   const [recoveredAddress, setRecoveredAddress] = useState(null);
   const scannerRef = useRef(null);
+  const stoppingRef = useRef(false);
+  const isMounted = useRef(true);
+
+  // Safely stop and clear the QR scanner if present
+  const safeStopAndClear = useCallback(async () => {
+    if (!scannerRef.current || stoppingRef.current) return;
+    stoppingRef.current = true;
+    try {
+      try { await scannerRef.current.stop(); } catch (_) {}
+      try { await scannerRef.current.clear(); } catch (_) {}
+    } finally {
+      scannerRef.current = null;
+      stoppingRef.current = false;
+    }
+  }, []);
 
   const getUtxosForAddress = async (address) => {
     const { network } = await wallet.getNetwork();
@@ -44,7 +59,7 @@ function Recover({ wallet }) {
       if (!scannerRef.current) {
         scannerRef.current = new Html5Qrcode('reader');
       }
-      setScanning(true);
+      if (isMounted.current) setScanning(true);
       await scannerRef.current.start(
         { facingMode: 'environment' },
         {
@@ -54,11 +69,9 @@ function Recover({ wallet }) {
         async (decodedText) => {
           try {
             // Stop and clear cleanly after a successful scan
-            if (scannerRef.current) {
-              await scannerRef.current.stop().catch(() => {});
-              await scannerRef.current.clear().catch(() => {});
-            }
+            await safeStopAndClear();
           } finally {
+            if (!isMounted.current) return;
             setScanning(false);
             addIfValid(decodedText);
           }
@@ -71,36 +84,31 @@ function Recover({ wallet }) {
     } catch (err) {
       console.error('Failed to start QR scanner:', err);
       // Ensure UI state is reset on failure (e.g., denied camera permission or user cancels prompt)
-      setScanning(false);
-      try {
-        if (scannerRef.current) {
-          await scannerRef.current.stop().catch(() => {});
-          await scannerRef.current.clear().catch(() => {});
-        }
-      } catch (_) {
-        // no-op
-      }
-      alert('Unable to start the camera scanner. Please check permissions and try again.');
+      if (isMounted.current) setScanning(false);
+      await safeStopAndClear();
+      if (isMounted.current) alert('Unable to start the camera scanner. Please check permissions and try again.');
     }
   };
 
   const cancelScanner = useCallback(async () => {
     try {
-      if (scannerRef.current) {
-        await scannerRef.current.stop().catch(() => {});
-        await scannerRef.current.clear().catch(() => {});
-      }
+      await safeStopAndClear();
     } finally {
-      setScanning(false);
+      if (isMounted.current) setScanning(false);
     }
-  }, []);
+  }, [safeStopAndClear]);
 
   // Cleanup on unmount to avoid dangling camera stream causing crashes/blank screens
   useEffect(() => {
+    isMounted.current = true;
     return () => {
-      if (scannerRef.current) {
-        scannerRef.current.stop().catch(() => {});
-        scannerRef.current.clear().catch(() => {});
+      isMounted.current = false;
+      // Best-effort cleanup without awaiting during unmount
+      if (scannerRef.current && !stoppingRef.current) {
+        try { scannerRef.current.stop(); } catch (_) {}
+        try { scannerRef.current.clear(); } catch (_) {}
+        scannerRef.current = null;
+        stoppingRef.current = false;
       }
     };
   }, []);
