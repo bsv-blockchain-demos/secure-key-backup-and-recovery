@@ -28,6 +28,13 @@ function App() {
           <Route path="/recover" element={<Recover wallet={wallet} />} />
         </Routes>
       </main>
+
+      {/* Global fine-print disclaimer footer */}
+      <footer className="site-footer" aria-label="Legal disclaimer">
+        <p className="fine-print">
+          You are responsible for your own keys. Always test recoverability of funds using an amount you would be willing to lose forever BEFORE using the key to store large amounts. Send 1 sat, recover it using your backup. Then send the amount you want to store securely to the key you've already tested. No warranties are provided; the authors and contributors disclaim any and all legal liability for any loss of funds or damages arising from the use of this software.
+        </p>
+      </footer>
     </div>
   );
 }
