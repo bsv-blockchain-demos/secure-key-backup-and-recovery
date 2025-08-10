@@ -34,8 +34,13 @@ function Recover({ wallet }) {
   }, []);
 
   const getUtxosForAddress = async (address) => {
-    const { network } = await wallet.getNetwork();
-    const net = network === 'mainnet' ? 'main' : 'test';
+    let net = 'main';
+    try {
+      const { network } = await wallet.getNetwork();
+      net = network === 'testnet' ? 'test' : 'main';
+    } catch (_) {
+      console.info('Connect Metanet Wallet To Import Funds')
+    }
     const response = await fetch(`https://api.whatsonchain.com/v1/bsv/${net}/address/${address}/unspent/all`);
     const rp = await response.json();
     const utxos = rp.result.filter(r => r.isSpentInMempoolTx === false).map(r => ({ txid: r.tx_hash, vout: r.tx_pos, satoshis: r.value }));
