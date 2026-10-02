@@ -58,4 +58,4 @@ Vite writes `dist/`. Static hosting needs a fallback to `index.html` for `/backu
 
 ## Licence
 
-[Open BSV Licence, version 4](LICENSE.md).
+**Open BSV Licence v6.** See [LICENSE.md](LICENSE.md) for the full terms.
