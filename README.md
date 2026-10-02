@@ -1,74 +1,61 @@
-# Secure Key Backup and Recovery
+# Key Backup and Recovery Demo
 
-This is a React application built with Vite that demonstrates secure backup and recovery of BSV (Bitcoin SV) private keys using Shamir's Secret Sharing Scheme. It allows users to generate a random private key, split it into multiple shares for secure storage, and later recover the key by recombining a threshold number of shares. The app also supports transferring funds to the generated address and importing recovered funds into a local wallet.
+A React application demonstrating threshold backup shares with the BSV SDK. It generates a new private key, splits that key into shares and reconstructs it from a sufficient set of shares. Optional wallet controls fund the generated address and sweep recovered outputs into a connected BRC-100 wallet.
 
-## Features
+The backup screen creates a **new key**. It does not back up the connected wallet's root key or its entire account.
 
-- **Key Generation and Splitting**: Generate a random private key and split it into customizable shares (with threshold and total shares configurable).
-- **Backup**: Save shares as a PDF with QR codes for printing and secure distribution.
-- **Recovery**: Scan or paste shares to recover the original private key, view balance, and import funds.
-- **Wallet Integration**: Uses `@bsv/sdk` for wallet operations, including creating transactions and interacting with the BSV network.
-- **Explainer**: Provides an overview of how the secret sharing works.
+## Included workflows
 
-The app has three main routes:
-- `/`: Explainer page.
-- `/backup`: Backup key and shares.
-- `/recover`: Recover key from shares.
+| Route | Purpose |
+| --- | --- |
+| `/` | Explanation of the threshold-sharing workflow. |
+| `/backup` | Generate a key and shares, export a PDF and optionally fund the address. |
+| `/recover` | Paste or scan shares, reconstruct the key, inspect its balance and import funds. |
 
-## Prerequisites
+The implementation uses `PrivateKey.toBackupShares()` and `PrivateKey.fromBackupShares()` from `@bsv/sdk`. Share parsing and recovery follow that SDK's format.
 
-- Node.js (version 20 or higher recommended).
-- npm (comes with Node.js).
+## Run locally
 
-## Installation
+Use Node.js 22.13 or later in the 22.x release line, and npm.
 
-1. Clone the repository:
-   ```
-   git clone https://github.com/bsv-blockchain-demos/secure-key-backup-and-recovery.git
-   cd secure-key-backup-and-recovery
-   ```
-
-2. Install dependencies:
-   ```
-   npm install
-   ```
-
-## Running Locally for Development
-
-1. Start the development server:
-   ```
-   npm run dev
-   ```
-
-2. Open your browser and navigate to `http://localhost:5173` (or the port shown in the terminal).
-
-The app will run with hot module replacement (HMR) enabled for fast development.
-
-## Building for Production
-
-To create a production build:
+```sh
+npm ci
+npm run dev -- --host 127.0.0.1
 ```
+
+Open the URL printed by Vite, normally `http://localhost:5173`. No environment file or application backend is required.
+
+A compatible BRC-100 wallet is needed for funding and importing funds. Key generation and share reconstruction happen in the browser. Camera scanning requires browser permission and a secure context, such as HTTPS or localhost; pasting share text is also supported.
+
+## Backup and recovery
+
+Choose a threshold and total share count, then generate the key. The PDF export places one share on each page and repeats the public key and address.
+
+**The exported PDF contains every share and is not encrypted by the application.** Possession of the complete file provides enough material to recover the key. Separate the shares if the intended backup arrangement relies on different holders or storage locations.
+
+For recovery, supply distinct shares from the same backup. The interface checks the embedded threshold and integrity identifier before passing the collected shares to the SDK. It displays the recovered private key in WIF format.
+
+The browser holds private key material and shares in application memory. This is a demonstration of a backup workflow, not an audited key-custody product.
+
+## Network operations
+
+Funding creates a real P2PKH payment from the connected wallet. Importing retrieves unspent outputs and BEEF from WhatsOnChain, signs with the recovered key and finalises a sweep through the wallet. Both can incur transaction fees.
+
+Balance queries use the connected wallet's reported network, falling back to mainnet when wallet access fails. Address display uses the SDK's default encoding rather than an explicit network parameter. Confirm network alignment before funding or recovery.
+
+## Build and source guide
+
+```sh
 npm run build
+npm run preview -- --host 127.0.0.1
 ```
 
-The built files will be in the `dist` directory. You can serve them with any static server.
+Vite writes `dist/`. Static hosting needs a fallback to `index.html` for `/backup` and `/recover`. A lint script is available; no automated test script is defined.
 
-## Dependencies
+- [Backup.jsx](src/components/Backup.jsx): generation, PDF export and funding.
+- [Recover.jsx](src/components/Recover.jsx): share input, camera handling and fund import.
+- [App.jsx](src/App.jsx): routes and wallet client.
 
-- React
-- Vite
-- `@bsv/sdk` for BSV key management and transactions
-- `qrcode.react` for generating QR codes
-- `jspdf` for PDF export
-- `recharts` for pie chart visualization
-- `html5-qrcode` for QR code scanning
-- `react-router-dom` for routing
+## Licence
 
-## Notes
-
-- This app uses the browser's crypto module for random key generation.
-- For recovery, ensure you have the required threshold number of shares.
-- Wallet operations interact with the BSV network; use with caution on mainnet.
-- The app is designed for demonstration purposes. Always handle private keys securely.
-
-For more details, explore the source code in `src/components/` for the main logic.
+[Open BSV Licence, version 4](LICENSE.md).
